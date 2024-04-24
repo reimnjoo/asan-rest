@@ -5,6 +5,10 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Owners;
+use App\Models\Warehouse;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,9 +19,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            OwnersSeeder::class
         ]);
     }
 }
