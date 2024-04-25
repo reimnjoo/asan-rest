@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Warehouse;
-use App\Http\Requests\StoreWarehouseRequest;
-use App\Http\Requests\UpdateWarehouseRequest;
+use App\Models\Owners;
+use App\Http\Requests\StoreOwnersRequest;
+use App\Http\Requests\UpdateOwnersRequest;
+use App\Http\Controllers\Controller;
 
-class WarehouseController extends Controller
+class OwnersController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        return Owners::all();
     }
 
     /**
@@ -27,7 +28,7 @@ class WarehouseController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreWarehouseRequest $request)
+    public function store(StoreOwnersRequest $request)
     {
         //
     }
@@ -35,15 +36,15 @@ class WarehouseController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Warehouse $warehouse)
+    public function show(Owners $owners)
     {
-        //
+        return $owners;
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Warehouse $warehouse)
+    public function edit(Owners $owners)
     {
         //
     }
@@ -51,7 +52,7 @@ class WarehouseController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateWarehouseRequest $request, Warehouse $warehouse)
+    public function update(UpdateOwnersRequest $request, Owners $owners)
     {
         //
     }
@@ -59,7 +60,7 @@ class WarehouseController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Warehouse $warehouse)
+    public function destroy(Owners $owners)
     {
         //
     }
