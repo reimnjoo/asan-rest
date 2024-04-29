@@ -6,6 +6,7 @@ use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Owners;
+use App\Models\Buyers;
 use App\Models\Warehouse;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +22,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             OwnersSeeder::class,
-            WarehouseSeeder::class
+            BuyersSeeder::class,
+            WarehouseSeeder::class,
         ]);
     }
 }

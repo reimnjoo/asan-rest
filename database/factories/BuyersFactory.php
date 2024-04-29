@@ -2,12 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Owners;
+use App\Models\Buyers;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class OwnersFactory extends Factory {
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Buyers>
+ */
+class BuyersFactory extends Factory {
 
-    protected $model = Owners::class;
+    protected $model = Buyers::class;
 
     public function definition(): array {
         return [
@@ -16,7 +19,7 @@ class OwnersFactory extends Factory {
             'first_name' => $this->faker->firstName,
             'middle_initial' => $this->faker->optional()->randomLetter,
             'date_of_birth' => $this->faker->optional()->date(),
-            'scrapyard_name' => $this->faker->company,
+            'company' => $this->faker->company,
             'location' => $this->faker->address,
             'email' => $this->faker->unique()->safeEmail,
             'password' => bcrypt('password'), // Hashed fake password

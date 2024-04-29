@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('warehouses', function (Blueprint $table) {
-            $table->uuid('warehouse_id')->primary();
-            $table->uuid('warehouse_owner');
-            $table->foreign('warehouse_owner')->references('uuid')->on('owners');
-            $table->string('location');
-            $table->boolean('is_deleted')->default(false);
+        Schema::create('subscriptions', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('plan_id');
+            $table->enum('plan_name', ['Basic', 'Premium', 'Pro']);
             $table->timestamps();
+
+            $table->foreign('plan_id')->references('id')->on('plans');
         });
-        
     }
 
     /**
@@ -27,7 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('warehouses');
+        Schema::dropIfExists('subscriptions');
     }
 };
-

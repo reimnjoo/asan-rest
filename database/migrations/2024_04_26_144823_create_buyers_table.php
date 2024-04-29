@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('owners', function (Blueprint $table) {
+        Schema::create('buyers', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
             $table->string('last_name');
             $table->string('first_name');
             $table->string('middle_initial')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('scrapyard_name');
+            $table->string('company');
             $table->string('location');
             $table->string('email');
             $table->string('password');
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->date('id_submitted_date')->nullable();
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-        });        
+        });
     }
 
     /**
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('owners');
+        Schema::dropIfExists('buyers');
     }
 };
