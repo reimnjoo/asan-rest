@@ -7,13 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
 
-    public function register(Request $request)
-    {
-        $data = $request->validate([
+    public function register(Request $request) {
+        $validator = Validator::make($request->all(), [
             'user_type' => ['required', 'string'],
             'last_name' => ['required', 'string'],
             'first_name' => ['required', 'string'],
@@ -22,24 +22,29 @@ class AuthController extends Controller
             'affiliation' => ['required', 'string'],
             'location' => ['required', 'string'],
             'email' => ['required', 'email', 'unique:users'],
-            'username' => ['required', 'min:6'],
+            'username' => ['required', 'min:6', 'unique:users'],
             'password' => ['required', 'min:6']
         ]);
 
-        // Combine last_name, first_name, and middle_initial into fullname
-        $data['fullname'] = $data['last_name'] . ' ' . $data['first_name'];
-        if (!empty($data['middle_initial'])) {
-            $data['fullname'] .= ' ' . $data['middle_initial'];
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Generate UUID for the user
-        $data['id'] = Str::uuid();
-
-        // Hash the password
-        $data['password'] = Hash::make($data['password']);
-
-        // Attempt to create the user
         try {
+            $data = $request->all();
+            // Combine last_name, first_name, and middle_initial into fullname
+            $data['fullname'] = $data['last_name'] . ' ' . $data['first_name'];
+            if (!empty($data['middle_initial'])) {
+                $data['fullname'] .= ' ' . $data['middle_initial'];
+            }
+
+            // Generate UUID for the user
+            $data['id'] = Str::uuid();
+
+            // Hash the password
+            $data['password'] = Hash::make($data['password']);
+
+            // Attempt to create the user
             $user = User::create($data);
 
             // Create token for authentication
@@ -59,26 +64,43 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
-    {
-        $data = $request->validate([
-            'username' => ['required', 'email', 'min:6', 'exists:users'],
+    public function login(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => ['sometimes', 'required_without:username', 'email'],
+            'username' => ['sometimes', 'required_without:email', 'string'],
             'password' => ['required', 'min:6']
         ]);
 
-        $user = User::where('email', $data['email'])->first();
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $data = $validator->validated();
+
+        $user = User::where(function ($query) use ($data) {
+            if (isset($data['email'])) {
+                $query->where('email', $data['email']);
+            } elseif (isset($data['username'])) {
+                $query->where('username', $data['username']);
+            }
+        })
+            ->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            return response([
+            return response()->json([
                 'message' => 'Invalid credentials.'
             ], 401);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return [
+        return response()->json([
+            'message' => 'Login successful',
             'user' => $user,
             'token' => $token
-        ];
+        ], Response::HTTP_OK);
     }
+
 }
