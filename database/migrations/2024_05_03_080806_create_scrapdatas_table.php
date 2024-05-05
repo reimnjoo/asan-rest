@@ -12,8 +12,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('scrapdatas', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('scrap_id')->primary();
+            $table->uuid('warehouse_id');
+            $table->string('scrap_category');
+            $table->string('scrap_name');
+            $table->string('scrap_volume');
+            $table->decimal('scrap_price_per_kg', 10, 2);
+            $table->bigInteger('scrap_stock_count');
+            $table->string('scrap_image');
+            $table->date('scrap_created_date');
+            $table->date('scrap_updated_date');
+            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
+            
+            $table->foreign('warehouse_id')->references('warehouse_id')->on('warehouses')->onDelete('cascade');
         });
     }
 

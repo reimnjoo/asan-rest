@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouses', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('warehouse_id')->primary();
+            $table->uuid('warehouse_owner_id');
+            $table->string('warehouse_name');
+            $table->string('warehouse_owner');
+            $table->string('warehouse_location');
             $table->timestamps();
+            $table->foreign('warehouse_owner_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
+use App\Models\Warehouse;
 
-class AuthController extends Controller
-{
-    
+class AuthController extends Controller {
+
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
             'user_type' => ['required', 'string'],
@@ -48,6 +49,17 @@ class AuthController extends Controller
             // Attempt to create the user
             $user = User::create($data);
 
+            if ($data['user_type'] === "owner") {
+                $warehouseData = [
+                    "warehouse_id" => Str::uuid(),
+                    "warehouse_owner_id" => $data['id'],
+                    "warehouse_name" => $data["affiliation"],
+                    "warehouse_owner" => $data['fullname'],
+                    "warehouse_location" => $data['location'],
+                ];
+                $warehouse = Warehouse::create($warehouseData);
+            }
+
             // Create token for authentication
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -67,9 +79,9 @@ class AuthController extends Controller
 
     public function login(Request $request) {
         $validator = Validator::make($request->all(), [
-            'email' => ['sometimes', 'required_without:username', 'email'],
-            'username' => ['sometimes', 'required_without:email', 'string'],
-            'password' => ['required', 'min:6']
+            'identifier' => ['required', 'string'],
+            'password' => ['required', 'min:6'],
+            'user_type' => ['required', 'string']
         ]);
 
         if ($validator->fails()) {
@@ -78,30 +90,39 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $data = $validator->validated();
+        $credentials = $request->only('identifier', 'password', 'user_type');
 
-        $user = User::where(function ($query) use ($data) {
-            if (isset($data['email'])) {
-                $query->where('email', $data['email']);
-            } elseif (isset($data['username'])) {
-                $query->where('username', $data['username']);
+        $identifierField = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $query = User::where($identifierField, $credentials['identifier'])->where('user_type', $credentials['user_type']);
+
+        if ($query->exists()) {
+            $user = $query->first();
+
+            if (Auth::attempt([$identifierField => $credentials['identifier'], 'password' => $credentials['password']])) {
+                $user = Auth::user();
+                $warehouseId = null;
+
+                if ($user->user_type === 'owner') {
+                    $warehouse = Warehouse::where('warehouse_owner_id', $user->id)->first();
+                    if ($warehouse) {
+                        $warehouseId = $warehouse->warehouse_id;
+                    }
+                }
+
+                $token = $user->createToken('auth_token')->plainTextToken;
+
+                return response()->json([
+                    'message' => 'Login successful',
+                    'user' => $user,
+                    'warehouse_id' => $warehouseId,
+                    'token' => $token
+                ], 200);
             }
-        })
-            ->first();
-
-        if (!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json([
-                'message' => 'Invalid credentials.'
-            ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
-            'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token
-        ], Response::HTTP_OK);
+            'message' => 'Invalid credentials.'
+        ], 401);
     }
-
 }

@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('subscriptions', function (Blueprint $table) {
             $table->uuid('subscription_id')->primary();
             $table->uuid('client_id');
+            $table->uuid('plan_id');
             $table->boolean('subscription_status');
             $table->date('subscription_start_date');
             $table->date('subscription_end_date');
             $table->timestamps();
 
-            $table->foreign('client_id')->references('id')->on('users');
+            $table->foreign('client_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('plan_id')->references('plan_id')->on('plans')->onDelete('cascade');
         });
     }
 

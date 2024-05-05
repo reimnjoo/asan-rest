@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Warehouse;
 use App\Http\Requests\StoreWarehouseRequest;
 use App\Http\Requests\UpdateWarehouseRequest;
+use App\Http\Controllers\Controller;
 
 class WarehouseController extends Controller
 {
@@ -13,8 +14,11 @@ class WarehouseController extends Controller
      */
     public function index()
     {
-        //
+        $warehouseData = Warehouse::select('warehouse_id', 'warehouse_name', 'warehouse_location')->get();
+
+        return $warehouseData;
     }
+
 
     /**
      * Show the form for creating a new resource.

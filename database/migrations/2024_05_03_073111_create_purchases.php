@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('subscription_id')->references('subscription_id')->on('subscriptions');
-            $table->foreign('purchased_by')->references('id')->on('users');
+            $table->foreign('purchased_by')->references('id')->on('users')->onDelete('cascade');;
         });
     }
 

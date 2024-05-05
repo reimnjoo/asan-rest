@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Scrapdata;
 use App\Http\Requests\StoreScrapdataRequest;
 use App\Http\Requests\UpdateScrapdataRequest;
+use App\Http\Controllers\Controller;
 
 class ScrapdataController extends Controller
 {
