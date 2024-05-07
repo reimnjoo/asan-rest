@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ScrapdataController;
 use App\Http\Controllers\Api\V1\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +10,7 @@ Route::any("/login", [AuthController::class, "login"]);
 
 Route::middleware('auth:sanctum')->prefix('v1')->namespace('Api\V1')->group(function () {
     Route::get("/warehouse", [WarehouseController::class, "index"]);
+    Route::post("/scrapdata", [ScrapdataController::class, "create"]);
 });
 
 // Route::group(['prefix' => 'v1', 'namespace' => 'Api\V1', 'middleware' => 'auth:sanctum'], function () {

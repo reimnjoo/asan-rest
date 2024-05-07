@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,16 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('scrapdatas', function (Blueprint $table) {
-            $table->uuid('scrap_id')->primary();
+            $table->uuid('scrap_id')->primary()->default(DB::raw('uuid()'));;
             $table->uuid('warehouse_id');
             $table->string('scrap_category');
             $table->string('scrap_name');
-            $table->string('scrap_volume');
+            $table->string('scrap_volume')->nullable();
             $table->decimal('scrap_price_per_kg', 10, 2);
             $table->bigInteger('scrap_stock_count');
             $table->string('scrap_image');
-            $table->date('scrap_created_date');
-            $table->date('scrap_updated_date');
+            $table->date('scrap_created_date')->default(DB::raw('CURRENT_DATE'));
+            $table->date('scrap_updated_date')->default(DB::raw('CURRENT_DATE'));
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
             

@@ -16,9 +16,21 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
+     * 
+     * 
      */
+
+    // protected $keyType = 'string';
+    // public $incrementing = false;
+
+    // protected $casts = [
+    //     'id' => 'string'
+    // ];
+
+    // public $incrementing = false;
+
     protected $fillable = [
-        'id', 'user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_type', 'id_image', 'id_submitted_date', 'is_deleted',
+        'id', 'access_uuid','user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_type', 'id_image', 'id_submitted_date', 'is_deleted',
     ];
 
 
