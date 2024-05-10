@@ -35,7 +35,7 @@ class ScrapdataController extends Controller {
             'scrap_volume' => ['string', 'nullable'],
             'scrap_price_per_kg' => ['required', 'numeric'],
             'scrap_stock_count' => ['required', 'integer'],
-            'scrap_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'scrap_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:50480'
         ]);
 
         if ($validator->fails()) {
