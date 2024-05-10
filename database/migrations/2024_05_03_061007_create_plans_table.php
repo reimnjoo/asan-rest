@@ -11,7 +11,7 @@ return new class extends Migration {
      */
     public function up(): void {
         Schema::create('plans', function (Blueprint $table) {
-            $table->uuid('plan_id')->primary()->default(DB::raw('uuid()'));
+            $table->uuid('plan_id')->primary();
             $table->string('plan_name');
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
