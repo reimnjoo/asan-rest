@@ -11,6 +11,7 @@ class Scrapdata extends Model
 
     protected $fillable = [
         'warehouse_id',
+        'scrap_id',
         'scrap_category',
         'scrap_name',
         'scrap_volume',

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('scrapdatas', function (Blueprint $table) {
-            $table->uuid('scrap_id')->primary()->default(DB::raw('uuid()'));;
+            $table->uuid('scrap_id')->primary();
             $table->uuid('warehouse_id');
             $table->string('scrap_category');
             $table->string('scrap_name');
