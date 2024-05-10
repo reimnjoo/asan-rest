@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 return new class extends Migration {
     /**
@@ -19,9 +20,9 @@ return new class extends Migration {
 
         // Add default plans
         $plans = [
-            ['plan_name' => 'Basic'],
-            ['plan_name' => 'Premium'],
-            ['plan_name' => 'Pro']
+            ['plan_id' => Str::uuid(), 'plan_name' => 'Basic'],
+            ['plan_id' => Str::uuid(), 'plan_name' => 'Premium'],
+            ['plan_id' => Str::uuid(), 'plan_name' => 'Pro']
         ];
 
         DB::table('plans')->insert($plans);
