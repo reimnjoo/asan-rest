@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class ScrapdataController extends Controller {
     /**
@@ -46,31 +47,42 @@ class ScrapdataController extends Controller {
 
             $data['scrap_id'] = Str::uuid();
 
-            if ($request->hasFile('image')) {
+            if ($request->hasFile('scrap_image')) {
                 $warehouseId = $request->input('warehouse_id');
-                $imagePath = $request->file('image')->store('scrapdata-images/' . $warehouseId); // specify the storage path
+                $imageFile = $request->file('scrap_image'); // Get the uploaded file object
+                $imagePath = $imageFile->store('public/scrapdata-images/' . $warehouseId); // Specify the storage path and store the file
 
                 // Save the image path in the database
                 $scrapData = new Scrapdata();
                 $scrapData->warehouse_id = $warehouseId;
                 $scrapData->scrap_image = $imagePath;
-
-                return response()->json(['image_id' => $scrapData->id]);
+                $data['scrap_image'] = asset(str_replace('public', 'storage', $imagePath));
             }
 
-            $scrapData = Scrapdata::create($data);
+            // Create Scrapdata model
+            Scrapdata::create($data);
 
             return response()->json([
-                'message' => 'Scrapdata registered, successfully.'
+                'message' => 'Scrapdata registered successfully.'
             ], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Scrapdata creation, failed.',
+                'message' => 'Scrapdata creation failed.',
                 'error' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+
+    public function getImage($filename) {
+        $path = 'scrapdata-images/' . $filename;
+
+        if (Storage::disk('public')->exists($path)) {
+            return response()->file(storage_path('app/public/' . $path));
+        } else {
+            abort(404);
+        }
+    }
     /**
      * Store a newly created resource in storage.
      */

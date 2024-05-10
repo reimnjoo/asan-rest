@@ -11,3 +11,5 @@ Route::get('/test', function () {
     return response()->json(['message' => 'Test']);
 });
 
+Route::get('storage/app/public/scrapdata-images/{filename}', 'App\Http\Controllers\ScrapDataController@getImage');
+
