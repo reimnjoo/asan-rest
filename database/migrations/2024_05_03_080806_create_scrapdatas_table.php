@@ -19,10 +19,12 @@ return new class extends Migration
             $table->string('scrap_name');
             $table->string('scrap_volume')->nullable();
             $table->decimal('scrap_price_per_kg', 10, 2);
+            $table->bigInteger('scrap_total_weight');
             $table->bigInteger('scrap_stock_count');
             $table->string('scrap_image');
             $table->date('scrap_created_date')->default(date('Y-m-d'));
             $table->date('scrap_updated_date')->default(date('Y-m-d'));
+            $table->string('scrap_bar_color');
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
             

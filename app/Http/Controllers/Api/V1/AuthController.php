@@ -37,14 +37,10 @@ class AuthController extends Controller {
         try {
             $data = $request->all();
             // Combine last_name, first_name, and middle_initial into fullname
-            $data['fullname'] = $data['last_name'] . ' ' . $data['first_name'];
+            $data['fullname'] = $data['last_name'] . ', ' . $data['first_name'];
             if (!empty($data['middle_initial'])) {
                 $data['fullname'] .= ' ' . $data['middle_initial'];
             }
-
-            // Generate UUID for the user
-            $data['id'] = Str::uuid();
-            $data['access_uuid'] = $data['id'];
 
             // Hash the password
             $data['password'] = Hash::make($data['password']);
@@ -55,7 +51,7 @@ class AuthController extends Controller {
             if ($data['user_type'] === "owner") {
                 $warehouseData = [
                     "warehouse_id" => Str::uuid(),
-                    "warehouse_owner_id" => $data['id'],
+                    "warehouse_owner_id" => $user->id,
                     "warehouse_name" => $data["affiliation"],
                     "warehouse_owner" => $data['fullname'],
                     "warehouse_location" => $data['location'],
@@ -124,7 +120,7 @@ class AuthController extends Controller {
                 $token = $user->createToken('auth_token')->plainTextToken;
     
                 // Generate Stream Chat token
-                $streamToken = $serverClient->createToken($user->access_uuid);
+                $streamToken = $serverClient->createToken($user->id);
     
                 return response()->json([
                     'message' => 'Login successful',
