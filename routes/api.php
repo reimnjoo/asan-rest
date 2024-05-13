@@ -9,6 +9,7 @@ Route::any("/register", [AuthController::class, "register"]);
 Route::any("/login", [AuthController::class, "login"]);
 
 Route::middleware('auth:sanctum')->prefix('v1')->namespace('Api\V1')->group(function () {
+    Route::post("/users/verification/{user}", [AuthController::class, "requestVerification"]);
     Route::get("/warehouse", [WarehouseController::class, "index"]);
     Route::post("/scrapdata/create", [ScrapdataController::class, "create"]);
     Route::get("/scrapdata/warehouse/{warehouse}", [ScrapdataController::class, "getByWarehouseId"]);

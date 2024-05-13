@@ -5,11 +5,9 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use GetStream\StreamChat\Client;
@@ -142,62 +140,54 @@ class AuthController extends Controller {
             ], 401);
         }
     }
-    
+
+    public function requestVerification(Request $request, $userId) {
+        $user = User::findOrFail($userId);
+
+        $validator = Validator::make($request->all(), [
+            'date_of_birth' => ['required', 'date'],
+            'id_type' => ['required', 'string'],
+            'id_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:50480'],
+            'id_address' => ['required', 'string'],
+            'verification_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:50480'],
+            'verification_status' => ['required', 'int'],
+        ]);
 
 
-    // public function login(Request $request) {
-    //     $validator = Validator::make($request->all(), [
-    //         'identifier' => ['required', 'string'],
-    //         'password' => ['required', 'min:6'],
-    //         'user_type' => ['required', 'string']
-    //     ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
 
-    //     $serverClient = new Client("ecnyy5zzzyhe", "d8sgrykjw627csytyknj7z3e893d84thdkks6mkmyhzkdrq3s9m9gt6954brdmam");
+        $data = $request->only([
+            'date_of_birth',
+            'id_type',
+            'id_address',
+            'verification_status',
+        ]);
 
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'errors' => $validator->errors()
-    //         ], 422);
-    //     }
+        if ($request->hasFile('id_image')) {
+            $imageFile = $request->file('id_image');
+            $imagePath = $imageFile->store('public/users/verification/submittedIDs/' . $userId);
+            $data['id_image'] = asset(str_replace('public', 'storage', $imagePath));
+        }
 
-    //     $credentials = $request->only('identifier', 'password', 'user_type');
+        if ($request->hasFile('verification_image')) {
+            $imageFile = $request->file('verification_image');
+            $imagePath = $imageFile->store('public/users/verification/submittedPhotos/' . $userId);
+            $data['verification_image'] = asset(str_replace('public', 'storage', $imagePath));
+        }
 
-    //     $identifierField = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $user->fill($data);
+        $user->save();
 
-    //     $query = User::where($identifierField, $credentials['identifier'])->where('user_type', $credentials['user_type']);
+        return response()->json([
+            'message' => 'User verification request successful.',
+        ], 200);
+    }
 
-    //     if ($query->exists()) {
-    //         $user = $query->first();
 
-    //         if (Auth::attempt([$identifierField => $credentials['identifier'], 'password' => $credentials['password']])) {
-    //             $user = Auth::user();
-    //             $warehouseId = null;
 
-    //             if ($user->user_type === 'owner') {
-    //                 $warehouse = Warehouse::where('warehouse_owner_id', $user->id)->first();
-    //                 if ($warehouse) {
-    //                     $warehouseId = $warehouse->warehouse_id;
-    //                     // $userId = $warehouse->warehouse_owner_id;
-    //                 }
-    //             }
-
-    //             $token = $user->createToken('auth_token')->plainTextToken;
-
-    //             $streamToken = $serverClient->createToken($userId->id);
-
-    //             return response()->json([
-    //                 'message' => 'Login successful',
-    //                 'user_id' => $userId->id,
-    //                 'user' => $user,
-    //                 'warehouse_id' => $warehouseId,
-    //                 'stream_token' => $streamToken,
-    //                 'token' => $token
-    //             ], 200);
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Invalid credentials.'
-    //     ], 401);
-    // }
 }

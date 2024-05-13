@@ -21,7 +21,7 @@ class User extends Authenticatable {
     public $incrementing = false;
 
     protected $fillable = [
-        'user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_type', 'id_image', 'id_submitted_date', 'is_deleted',
+        'user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_address', 'id_type', 'id_image', 'id_submitted_date', 'verification_image', 'verification_status', 'is_deleted',
     ];
 
     protected $hidden = [
