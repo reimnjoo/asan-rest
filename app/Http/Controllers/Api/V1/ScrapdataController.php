@@ -32,7 +32,7 @@ class ScrapdataController extends Controller {
         $validator = Validator::make($request->all(), [
             'warehouse_id' => 'required|uuid|exists:warehouses,warehouse_id',
             'scrap_category' => ['required', 'string', 'in:' . implode(',', $allowedCategories)],
-            'scrap_name' => ['required', 'string', 'unique:scrapdatas'],
+            'scrap_name' => ['required', 'string'],
             'scrap_volume' => ['string', 'nullable'],
             'scrap_price_per_kg' => ['required', 'numeric'],
             'scrap_total_weight' => ['required', 'numeric'],
@@ -47,8 +47,9 @@ class ScrapdataController extends Controller {
 
         try {
             $data = $request->all();
-
             $data['scrap_id'] = Str::uuid();
+            $data['scrap_created_date'] = Carbon::now();
+            $data['scrap_updated_date'] = Carbon::now();
 
             if ($request->hasFile('scrap_image')) {
                 $warehouseId = $request->input('warehouse_id');
@@ -56,9 +57,6 @@ class ScrapdataController extends Controller {
                 $imagePath = $imageFile->store('public/scrapdata-images/' . $warehouseId); // Specify the storage path and store the file
 
                 // Save the image path in the database
-                $scrapData = new Scrapdata();
-                $scrapData->warehouse_id = $warehouseId;
-                $scrapData->scrap_image = $imagePath;
                 $data['scrap_image'] = asset(str_replace('public', 'storage', $imagePath));
             }
 
@@ -75,6 +73,7 @@ class ScrapdataController extends Controller {
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
 
 
     public function getImage($filename) {
@@ -106,16 +105,16 @@ class ScrapdataController extends Controller {
 
 
     public function updateScrapData(Request $request, $scrapId) {
-        
         $scrapdata = Scrapdata::findOrFail($scrapId);
 
         $allowedCategories = ['Plastic', 'White Paper', 'Selected Paper', 'Karton Paper', 'Mixed Paper', 'Solid Metal', 'Assorted Metal'];
 
         $validator = Validator::make($request->all(), [
             'scrap_category' => ['string', 'in:' . implode(',', $allowedCategories)],
-            'scrap_name' => ['string', 'unique:scrapdatas'],
+            'scrap_name' => ['string'],
             'scrap_volume' => 'string',
             'scrap_price_per_kg' => 'numeric',
+            'scrap_total_weight' => 'numeric',
             'scrap_stock_count' => 'integer',
             'scrap_image' => 'image|mimes:jpeg,png,jpg,gif|max:50480',
             'scrap_bar_color' => 'string',
@@ -133,12 +132,15 @@ class ScrapdataController extends Controller {
             'scrap_name',
             'scrap_volume',
             'scrap_price_per_kg',
+            'scrap_total_weight',
             'scrap_stock_count',
             'scrap_bar_color'
         ]);
 
+        $data['scrap_updated_date'] = Carbon::now();
+
         if ($request->hasFile('scrap_image')) {
-            $warehouseId = $request->input('warehouse_id');
+            $warehouseId = $scrapdata->warehouse_id; // Use the warehouse_id from the existing record
             $imageFile = $request->file('scrap_image'); // Get the uploaded file object
             $imagePath = $imageFile->store('public/scrapdata-images/' . $warehouseId); // Specify the storage path and store the file
 
@@ -154,6 +156,7 @@ class ScrapdataController extends Controller {
             'data' => $scrapdata,
         ], 200);
     }
+
 
     public function deleteScrapData($scrapId) {
         try {
@@ -177,10 +180,22 @@ class ScrapdataController extends Controller {
     }
 
     public function getScrapDataSummary($warehouse_id) {
-        // 1. Todays Scrap
+        // All possible scrap categories
+        $all_categories = [
+            "Plastic",
+            "White Paper",
+            "Selected Paper",
+            "Karton Paper",
+            "Mixed Paper",
+            "Solid Metal",
+            "Assorted Metal"
+        ];
+
+        // 1. Today's Scrap
         $todays_scrap = (int) DB::table('scrapdatas')
             ->where('warehouse_id', $warehouse_id)
-            ->whereDate('scrap_created_date', today())
+            ->whereDate('scrap_created_date', Carbon::today()->toDateString())
+            ->where('is_deleted', 0)
             ->sum('scrap_total_weight');
 
         // 2. Week Total
@@ -189,11 +204,13 @@ class ScrapdataController extends Controller {
         $week_total = (int) DB::table('scrapdatas')
             ->where('warehouse_id', $warehouse_id)
             ->whereBetween('scrap_created_date', [$week_start_date, $week_end_date])
+            ->where('is_deleted', 0)
             ->sum('scrap_total_weight');
 
         // 3. Overall Stocks
         $overall_stocks = (int) DB::table('scrapdatas')
             ->where('warehouse_id', $warehouse_id)
+            ->where('is_deleted', 0)
             ->sum('scrap_total_weight');
 
         // 4. Week Start Date
@@ -207,18 +224,19 @@ class ScrapdataController extends Controller {
 
         // 7. Week Stacked Data
         $week_stacked_data = DB::table('scrapdatas')
-        ->select(
-            'scrap_category',
-            'scrap_bar_color',
-            DB::raw("LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1) AS scrap_issued_day"),
-            DB::raw("CONCAT(DATE_FORMAT(scrap_created_date, '%W'), ', ', DATE_FORMAT(scrap_created_date, '%b %e')) AS day_and_date"),
-            DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
-        )
-        ->where('warehouse_id', $warehouse_id)
-        ->whereRaw("WEEK(scrap_created_date, 1) = WEEK(CURDATE(), 1)") // Ensure week starts on Monday
-        ->groupBy('scrap_category', 'scrap_bar_color', 'scrap_issued_day', 'day_and_date')
-        ->orderByRaw("FIELD(LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1), 'M', 'T', 'W', 'Th', 'F', 'Sa', 'S')") // Order days starting from Monday
-        ->get();
+            ->select(
+                'scrap_category',
+                'scrap_bar_color',
+                DB::raw("LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1) AS scrap_issued_day"),
+                DB::raw("CONCAT(DATE_FORMAT(scrap_created_date, '%W'), ', ', DATE_FORMAT(scrap_created_date, '%b %e')) AS day_and_date"),
+                DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
+            )
+            ->where('warehouse_id', $warehouse_id)
+            ->whereRaw("WEEK(scrap_created_date, 1) = WEEK(CURDATE(), 1)") // Ensure week starts on Monday
+            ->where('is_deleted', 0)
+            ->groupBy('scrap_category', 'scrap_bar_color', 'scrap_issued_day', 'day_and_date')
+            ->orderByRaw("FIELD(LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1), 'M', 'T', 'W', 'Th', 'F', 'Sa', 'S')") // Order days starting from Monday
+            ->get();
 
         // 8. Today Stacked Data
         $today_stacked_data = DB::table('scrapdatas')
@@ -227,7 +245,8 @@ class ScrapdataController extends Controller {
                 DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
             )
             ->where('warehouse_id', $warehouse_id)
-            ->whereDate('scrap_created_date', today())
+            ->whereDate('scrap_created_date', Carbon::today()->toDateString())
+            ->where('is_deleted', 0)
             ->groupBy('scrap_category')
             ->get();
 
@@ -238,8 +257,24 @@ class ScrapdataController extends Controller {
                 DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS total_weight")
             )
             ->where('warehouse_id', $warehouse_id)
+            ->where('is_deleted', 0)
             ->groupBy('scrap_category')
-            ->get();
+            ->get()
+            ->keyBy('scrap_category')
+            ->toArray();
+
+        // Ensure all categories are present in the weight_stacked_data
+        $final_weight_stacked_data = [];
+        foreach ($all_categories as $category) {
+            if (isset($weight_stacked_data[$category])) {
+                $final_weight_stacked_data[] = $weight_stacked_data[$category];
+            } else {
+                $final_weight_stacked_data[] = [
+                    'scrap_category' => $category,
+                    'total_weight' => 0
+                ];
+            }
+        }
 
         // 10. Total Buyers
         $total_buyers = User::where('user_type', 'buyer')->count();
@@ -253,10 +288,11 @@ class ScrapdataController extends Controller {
             'week_current_date' => $week_current_date,
             'week_stacked_data' => $week_stacked_data,
             'today_stacked_data' => $today_stacked_data,
-            'weight_stacked_data' => $weight_stacked_data,
+            'weight_stacked_data' => $final_weight_stacked_data,
             'total_buyers' => $total_buyers
         ]);
     }
+
 
 
 

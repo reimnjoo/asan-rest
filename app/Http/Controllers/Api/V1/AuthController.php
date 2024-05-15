@@ -8,9 +8,11 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use GetStream\StreamChat\Client;
+
 
 class AuthController extends Controller {
 
@@ -187,6 +189,85 @@ class AuthController extends Controller {
             'message' => 'User verification request successful.',
         ], 200);
     }
+
+    public function updateProfile(Request $request, $userId) {
+        // Find the user by ID
+        $user = User::findOrFail($userId);
+
+        $validator = Validator::make($request->all(), [
+            'last_name' => 'nullable|string|max:255',
+            'first_name' => 'nullable|string|max:255',
+            'middle_initial' => 'nullable|string|max:1',
+            'affiliation' => 'nullable|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:50480', // Assuming max file size is 50MB
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $request->only([
+            'last_name',
+            'first_name',
+            'middle_initial',
+            'affiliation',
+            'username',
+            'email'
+        ]);
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        if ($request->hasFile('profile_image')) {
+            // Delete the old profile image if it exists
+            if ($user->profile_image) {
+                Storage::delete(str_replace(asset('storage'), 'public', $user->profile_image));
+            }
+
+            // Store the new profile image
+            $imageFile = $request->file('profile_image'); // Get the uploaded file object
+            $imagePath = $imageFile->store('public/profile_images'); // Specify the storage path and store the file
+
+            // Update the profile_image attribute of the User model
+            $data['profile_image'] = asset(str_replace('public', 'storage', $imagePath));
+        }
+
+        // Check if any name fields are updated and construct the full name
+        $nameUpdated = false;
+
+        if ($request->filled('first_name') && $user->first_name !== $request->first_name) {
+            $user->first_name = $request->first_name;
+            $nameUpdated = true;
+        }
+        if ($request->filled('middle_initial') && $user->middle_initial !== $request->middle_initial) {
+            $user->middle_initial = $request->middle_initial;
+            $nameUpdated = true;
+        }
+        if ($request->filled('last_name') && $user->last_name !== $request->last_name) {
+            $user->last_name = $request->last_name;
+            $nameUpdated = true;
+        }
+
+        if ($nameUpdated) {
+            $user->fullname = trim($user->last_name . ', ' . $user->first_name . ' ' . $user->middle_initial);
+        }
+
+        $user->fill($data);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'user' => $user,
+        ], 200);
+    }
+
 
 
 
