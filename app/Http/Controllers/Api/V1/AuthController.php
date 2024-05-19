@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
-use GetStream\StreamChat\Client;
+use App\Models\Subscription;
+use Carbon\Carbon;
+use GetStream\StreamChat\Client as StreamChatClient;
 
 
 class AuthController extends Controller {
@@ -76,72 +78,78 @@ class AuthController extends Controller {
         }
     }
 
+
     public function login(Request $request) {
         $validator = Validator::make($request->all(), [
-            'identifier' => ['required', 'string'],
-            'password' => ['required', 'min:6'],
-            'user_type' => ['required', 'string']
+            'identifier' => 'required|string',
+            'password' => 'required|string',
+            'user_type' => 'required|string'
         ]);
-    
-        $serverClient = new Client("ecnyy5zzzyhe", "d8sgrykjw627csytyknj7z3e893d84thdkks6mkmyhzkdrq3s9m9gt6954brdmam");
-    
+
+        $serverClient = new StreamChatClient("ecnyy5zzzyhe", "d8sgrykjw627csytyknj7z3e893d84thdkks6mkmyhzkdrq3s9m9gt6954brdmam");
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
             ], 422);
         }
-    
+
         $credentials = $request->only('identifier', 'password', 'user_type');
-    
-        // Determine if the identifier is an email or a username
         $identifierField = filter_var($credentials['identifier'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-    
-        // Query the User model to find the user based on the identifier and user type
+
         $user = User::where($identifierField, $credentials['identifier'])
-                    ->where('user_type', $credentials['user_type'])
-                    ->first();
-    
-        if ($user) {
-            // Check if the provided password matches the user's password
-            if (Hash::check($credentials['password'], $user->password)) {
-                // Authentication successful
-                // Proceed with additional logic...
-    
-                // Retrieve user's warehouse ID if applicable
-                $warehouseId = null;
-                if ($user->user_type === 'owner') {
-                    $warehouse = Warehouse::where('warehouse_owner_id', $user->id)->first();
-                    if ($warehouse) {
-                        $warehouseId = $warehouse->warehouse_id;
-                    }
+        ->where('user_type', $credentials['user_type'])
+        ->first();
+
+        if ($user && Hash::check($credentials['password'], $user->password)) {
+            $warehouseId = null;
+            if ($user->user_type === 'owner') {
+                $warehouse = Warehouse::where('warehouse_owner_id', $user->id)->first();
+                if ($warehouse) {
+                    $warehouseId = $warehouse->warehouse_id;
                 }
-    
-                // Create token for authentication
-                $token = $user->createToken('auth_token')->plainTextToken;
-    
-                // Generate Stream Chat token
-                $streamToken = $serverClient->createToken($user->id);
-    
-                return response()->json([
-                    'message' => 'Login successful',
-                    'user' => $user,
-                    'warehouse_id' => $warehouseId,
-                    'stream_token' => $streamToken,
-                    'token' => $token
-                ], 200);
-            } else {
-                // Password does not match
-                return response()->json([
-                    'message' => 'Invalid credentials.'
-                ], 401);
             }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            $serverClient->upsertUser([
+                'id' => $user->id,
+                'name' => $user->fullname,
+                'image' => $user->profile_image 
+            ]);
+
+            $streamToken = $serverClient->createToken($user->id);
+
+            // Subscription status check
+            $subscription = Subscription::where('client_id', $user->id)->first();
+            if ($subscription) {
+                $currentDate = Carbon::now();
+                if ($currentDate->greaterThan($subscription->subscription_end_date)) {
+                    $subscription->subscription_status = 0; 
+                    $subscription->save();
+                }
+                $subscriptionStatus = ['subscription_status' => $subscription->subscription_status];
+            } else {
+                $subscriptionStatus = ['subscription_status' => 0];
+            }
+
+            return response()->json([
+                'message' => 'Login successful',
+                'user' => $user,
+                'warehouse_id' => $warehouseId,
+                'stream_token' => $streamToken,
+                'token' => $token,
+                'subscription' => $subscriptionStatus
+            ], 200);
         } else {
-            // User not found
+            // Invalid credentials
             return response()->json([
                 'message' => 'Invalid credentials.'
             ], 401);
         }
     }
+
+
 
     public function requestVerification(Request $request, $userId) {
         $user = User::findOrFail($userId);
@@ -152,7 +160,7 @@ class AuthController extends Controller {
             'id_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:50480'],
             'id_address' => ['required', 'string'],
             'verification_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:50480'],
-            'verification_status' => ['required', 'int'],
+            'verification_status' => ['required'],
         ]);
 
 
@@ -199,6 +207,7 @@ class AuthController extends Controller {
             'first_name' => 'nullable|string|max:255',
             'middle_initial' => 'nullable|string|max:1',
             'affiliation' => 'nullable|string|max:255',
+            'location' => 'nullable|string|max:255',
             'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
             'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
@@ -216,9 +225,11 @@ class AuthController extends Controller {
             'last_name',
             'first_name',
             'middle_initial',
+            'location',
             'affiliation',
             'username',
-            'email'
+            'email',
+            'password'
         ]);
 
         if ($request->filled('password')) {
@@ -268,7 +279,65 @@ class AuthController extends Controller {
         ], 200);
     }
 
+    public function updateSubscriptionStatus(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'client_id' => ['required', 'string'],
+            'subscription_status' => ['required', 'boolean'],
+            'subscription_start_date' => ['required', 'date'],
+            'subscription_end_date' => ['required', 'date'],
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
+        try {
+            // Create subscription
+            $subscriptionData = [
+                'subscription_id' => Str::uuid(),
+                'client_id' => $request->input('client_id'),
+                'subscription_status' => $request->input('subscription_status'),
+                'subscription_start_date' => $request->input('subscription_start_date'),
+                'subscription_end_date' => $request->input('subscription_end_date'),
+            ];
+
+            $subscription = Subscription::create($subscriptionData);
+
+            return response()->json([
+                'message' => 'Subscription created successfully',
+                'subscription' => $subscription
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            // Return error message if subscription creation fails
+            return response()->json([
+                'message' => 'Subscription creation failed',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function getUserById($id) {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        $subscription = Subscription::where('client_id', $id)->first();
+
+        if(!$subscription) {
+            $subscription = ['subscription_status' => 0];
+        }
+        
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'subscription' => $subscription,
+            'token' => $token
+        ], 200);
+    }
 
 }

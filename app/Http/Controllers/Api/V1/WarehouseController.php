@@ -14,7 +14,7 @@ class WarehouseController extends Controller
      */
     public function index()
     {
-        $warehouseData = Warehouse::select('warehouse_id', 'warehouse_name', 'warehouse_location')->get();
+        $warehouseData = Warehouse::select('warehouse_id', 'warehouse_name', 'warehouse_location', 'warehouse_owner_id')->get();
 
         return $warehouseData;
     }
