@@ -224,19 +224,21 @@ class ScrapdataController extends Controller {
 
         // 7. Week Stacked Data
         $week_stacked_data = DB::table('scrapdatas')
-            ->select(
-                'scrap_category',
-                'scrap_bar_color',
-                DB::raw("LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1) AS scrap_issued_day"),
-                DB::raw("CONCAT(DATE_FORMAT(scrap_created_date, '%W'), ', ', DATE_FORMAT(scrap_created_date, '%b %e')) AS day_and_date"),
-                DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
-            )
-            ->where('warehouse_id', $warehouse_id)
+        ->select(
+            'scrap_category',
+            'scrap_bar_color',
+            DB::raw("LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1) AS scrap_issued_day"),
+            DB::raw("CONCAT(DATE_FORMAT(scrap_created_date, '%W'), ', ', DATE_FORMAT(scrap_created_date, '%b %e')) AS day_and_date"),
+            DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight"),
+            'scrap_created_date' // Include scrap_created_date in the GROUP BY clause
+        )
+        ->where('warehouse_id', $warehouse_id)
             ->whereRaw("WEEK(scrap_created_date, 1) = WEEK(CURDATE(), 1)") // Ensure week starts on Monday
             ->where('is_deleted', 0)
-            ->groupBy('scrap_category', 'scrap_bar_color', 'scrap_issued_day', 'day_and_date')
+            ->groupBy('scrap_category', 'scrap_bar_color', 'scrap_issued_day', 'day_and_date', 'scrap_created_date') // Include scrap_created_date in the GROUP BY clause
             ->orderByRaw("FIELD(LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1), 'M', 'T', 'W', 'Th', 'F', 'Sa', 'S')") // Order days starting from Monday
             ->get();
+
 
         // 8. Today Stacked Data
         $today_stacked_data = DB::table('scrapdatas')
