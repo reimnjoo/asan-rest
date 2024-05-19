@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use App\Models\Subscription;
