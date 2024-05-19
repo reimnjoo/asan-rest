@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Password;
 use App\Http\Controllers\Controller;
 use App\Models\Warehouse;
 use App\Models\Subscription;
@@ -338,6 +339,41 @@ class AuthController extends Controller {
             'subscription' => $subscription,
             'token' => $token
         ], 200);
+    }
+
+    public function sendResetLinkEmail(Request $request) {
+        $request->validate(['email' => 'required|email']);
+
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status === Password::RESET_LINK_SENT
+            ? response()->json(['message' => 'Reset link sent to your email.'], 200)
+            : response()->json(['message' => 'Unable to send reset link.'], 500);
+    }
+
+    public function resetPassword(Request $request) {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+            'token' => 'required',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->save();
+            }
+        );
+
+        if ($status == Password::PASSWORD_RESET) {
+            return response()->json(['message' => 'Password reset successful'], 200);
+        }
+
+        throw ValidationException::withMessages(['email' => [trans($status)]]);
     }
 
 }
