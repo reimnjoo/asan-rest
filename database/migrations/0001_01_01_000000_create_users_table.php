@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->uuid('access_uuid');
+            // $table->uuid('access_uuid');
             $table->string('user_type');
             $table->string('last_name');
             $table->string('first_name');
@@ -29,7 +29,10 @@ return new class extends Migration
             $table->string('profile_image')->nullable();
             $table->string('id_type')->nullable();
             $table->string('id_image')->nullable();
+            $table->string('id_address')->nullable();
             $table->date('id_submitted_date')->nullable();
+            $table->string('verification_image')->nullable();
+            $table->boolean('verification_status')->default(false);
             $table->boolean('is_deleted')->default(false);
             $table->rememberToken();
             $table->timestamps();

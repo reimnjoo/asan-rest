@@ -1,59 +1,43 @@
 <?php
 
+// User Model
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Traits\Uuids;
 
-class User extends Authenticatable
-{
-    use HasFactory, Notifiable, HasApiTokens;
+// Import PersonalAccessToken model
+use Laravel\Sanctum\PersonalAccessToken;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     * 
-     * 
-     */
+class User extends Authenticatable {
 
-    // protected $keyType = 'string';
-    // public $incrementing = false;
+    use HasFactory, Notifiable, HasApiTokens, Uuids;
 
-    // protected $casts = [
-    //     'id' => 'string'
-    // ];
-
-    // public $incrementing = false;
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
-        'id', 'access_uuid','user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_type', 'id_image', 'id_submitted_date', 'is_deleted',
+        'user_type', 'last_name', 'first_name', 'middle_initial', 'fullname', 'date_of_birth', 'affiliation', 'location', 'email', 'username', 'password', 'profile_image', 'id_address', 'id_type', 'id_image', 'id_submitted_date', 'verification_image', 'verification_status', 'is_deleted',
     ];
 
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
+    protected function casts(): array {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Define the relationship with personal_access_tokens
+    public function tokens() {
+        return $this->morphMany(PersonalAccessToken::class, 'tokenable');
     }
 }
