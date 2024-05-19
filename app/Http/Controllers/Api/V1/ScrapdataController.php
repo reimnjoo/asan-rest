@@ -293,6 +293,120 @@ class ScrapdataController extends Controller {
         ]);
     }
 
+    // public function getScrapDataSummary($warehouse_id) {
+    //     // All possible scrap categories
+    //     $all_categories = [
+    //         "Plastic",
+    //         "White Paper",
+    //         "Selected Paper",
+    //         "Karton Paper",
+    //         "Mixed Paper",
+    //         "Solid Metal",
+    //         "Assorted Metal"
+    //     ];
+
+    //     // 1. Today's Scrap
+    //     $todays_scrap = (int) DB::table('scrapdatas')
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->whereDate('scrap_created_date', Carbon::today()->toDateString())
+    //         ->where('is_deleted', 0)
+    //         ->sum('scrap_total_weight');
+
+    //     // 2. Week Total
+    //     $week_start_date = Carbon::now()->startOfWeek()->toDateString();
+    //     $week_end_date = Carbon::now()->endOfWeek()->toDateString();
+    //     $week_total = (int) DB::table('scrapdatas')
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->whereBetween('scrap_created_date', [$week_start_date, $week_end_date])
+    //         ->where('is_deleted', 0)
+    //         ->sum('scrap_total_weight');
+
+    //     // 3. Overall Stocks
+    //     $overall_stocks = (int) DB::table('scrapdatas')
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->where('is_deleted', 0)
+    //         ->sum('scrap_total_weight');
+
+    //     // 4. Week Start Date
+    //     $week_start_date_str = Carbon::parse($week_start_date)->format('M j');
+
+    //     // 5. Week End Date
+    //     $week_end_date_str = Carbon::parse($week_end_date)->format('M j');
+
+    //     // 6. Week Current Date
+    //     $week_current_date = Carbon::now()->format('M j');
+
+    //     // 7. Week Stacked Data
+    //     $week_stacked_data = DB::table('scrapdatas')
+    //         ->select(
+    //             'scrap_category',
+    //             'scrap_bar_color',
+    //             DB::raw("LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1) AS scrap_issued_day"),
+    //             DB::raw("CONCAT(DATE_FORMAT(scrap_created_date, '%W'), ', ', DATE_FORMAT(scrap_created_date, '%b %e')) AS day_and_date"),
+    //             DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
+    //         )
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->whereRaw("WEEK(scrap_created_date, 1) = WEEK(CURDATE(), 1)") // Ensure week starts on Monday
+    //         ->where('is_deleted', 0)
+    //         ->groupBy('scrap_category', 'scrap_bar_color', 'scrap_issued_day', 'day_and_date')
+    //         ->orderByRaw("FIELD(LEFT(DATE_FORMAT(scrap_created_date, '%a'), 1), 'M', 'T', 'W', 'Th', 'F', 'Sa', 'S')") // Order days starting from Monday
+    //         ->get();
+
+    //     // 8. Today Stacked Data
+    //     $today_stacked_data = DB::table('scrapdatas')
+    //         ->select(
+    //             'scrap_category',
+    //             DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS scrap_total_weight")
+    //         )
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->whereDate('scrap_created_date', Carbon::today()->toDateString())
+    //         ->where('is_deleted', 0)
+    //         ->groupBy('scrap_category')
+    //         ->get();
+
+    //     // 9. Weight Stacked Data
+    //     $weight_stacked_data = DB::table('scrapdatas')
+    //         ->select(
+    //             'scrap_category',
+    //             DB::raw("CAST(SUM(scrap_total_weight) AS UNSIGNED) AS total_weight")
+    //         )
+    //         ->where('warehouse_id', $warehouse_id)
+    //         ->where('is_deleted', 0)
+    //         ->groupBy('scrap_category')
+    //         ->get()
+    //         ->keyBy('scrap_category')
+    //         ->toArray();
+
+    //     // Ensure all categories are present in the weight_stacked_data
+    //     $final_weight_stacked_data = [];
+    //     foreach ($all_categories as $category) {
+    //         if (isset($weight_stacked_data[$category])) {
+    //             $final_weight_stacked_data[] = $weight_stacked_data[$category];
+    //         } else {
+    //             $final_weight_stacked_data[] = [
+    //                 'scrap_category' => $category,
+    //                 'total_weight' => 0
+    //             ];
+    //         }
+    //     }
+
+    //     // 10. Total Buyers
+    //     $total_buyers = User::where('user_type', 'buyer')->count();
+
+    //     return response()->json([
+    //         'todays_scrap' => $todays_scrap,
+    //         'week_total' => $week_total,
+    //         'overall_stocks' => $overall_stocks,
+    //         'week_start_date' => $week_start_date_str,
+    //         'week_end_date' => $week_end_date_str,
+    //         'week_current_date' => $week_current_date,
+    //         'week_stacked_data' => $week_stacked_data,
+    //         'today_stacked_data' => $today_stacked_data,
+    //         'weight_stacked_data' => $final_weight_stacked_data,
+    //         'total_buyers' => $total_buyers
+    //     ]);
+    // }
+
 
 
 
