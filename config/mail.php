@@ -104,8 +104,8 @@ return [
     */
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'address' => env('MAIL_FROM_ADDRESS', 'aladiahfulminar1@gmail.com'),
+        'name' => env('MAIL_FROM_NAME', 'ASAN Integrated: Reset Password Request'),
     ],
 
 ];
