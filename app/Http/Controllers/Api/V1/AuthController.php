@@ -103,7 +103,7 @@ class AuthController extends Controller {
         ->where('user_type', $credentials['user_type'])
         ->first();
 
-        if ($user && Hash::check($credentials['password'], $user->password)) {
+        if ($user && Hash::check($credentials['password'], $user->password) && $user->is_deleted !== 1) {
             $warehouseId = null;
             if ($user->user_type === 'owner') {
                 $warehouse = Warehouse::where('warehouse_owner_id', $user->id)->first();
@@ -130,9 +130,11 @@ class AuthController extends Controller {
                     $subscription->subscription_status = 0; 
                     $subscription->save();
                 }
-                $subscriptionStatus = ['subscription_status' => $subscription->subscription_status];
+                $subscriptionStatus = $subscription;
             } else {
-                $subscriptionStatus = ['subscription_status' => 0];
+                $subscriptionStatus = [
+                    'subscription_status' => 0,
+                ];
             }
 
             return response()->json([
@@ -439,7 +441,7 @@ class AuthController extends Controller {
     }
 
     public function sendResetLinkEmail(Request $request) {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(['email' => 'required|email|exists:users, email']);
 
         $status = Password::sendResetLink(
             $request->only('email')
