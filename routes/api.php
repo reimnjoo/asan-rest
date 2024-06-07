@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ScrapdataController;
+use App\Http\Controllers\Api\V1\AuditLogController;
 use App\Http\Controllers\Api\V1\WarehouseController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->namespace('Api\V1')->group(func
     Route::post("/scrapdata/update/{scrapdata}", [ScrapdataController::class, "updateScrapData"]);
     Route::delete("/scrapdata/delete/{scrapdata}", [ScrapdataController::class, "deleteScrapData"]);
 });
+
+Route::post('/audit-log', [AuditLogController::class, 'store']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
