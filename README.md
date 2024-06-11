@@ -1,66 +1,210 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ASAN Integrated: A WAREHOUSE MANAGEMENT SYSTEM WITH COMMUNICATION
+SUBSYSTEM FOR SCRAP YARDS IN THE PHILIPPINES 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Welcome to the Scrapyard Warehouse Management App. This application is designed to streamline your warehouse operations, enhancing efficiency and accuracy through automation. By integrating our WMS into your business, you can achieve better inventory management, improved accuracy, and streamlined processes through our communication subsystem. Our system reduces manual processes, minimizes errors, and maximizes your business potential, providing you with a competitive edge in the logistics and supply chain industry.
 
-## About Laravel
+* **Paypal** and **GetStream.io** support.
+* **Mapbox** support integrated inside user-verification section.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Who is ASAN Integrated designed for?
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* **Scrapyard Owners/Sellers** - designed for scrap yard owners to boost operational efficiency and cut financial losses. By automating warehouse and communication systems, it reduces manual effort and time spent managing stock, allowing owners to focus on business strategy. Real-time visibility and accuracy minimize errors, misplaced items, and inaccurate counts, leading to increased profitability.
+* **Affiliated Businesses** - Affiliated businesses fosters the bond and strength between scrap yard owners and other affiliated buyers alike. With affiliations, it enables ASAN to perfectly streamline the communication using the subsystems made for both end-users of our application.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Main Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. Input Daily Scrap (Day to day accepted scrap cycle for scrapyard owners/sellers).
+2. View Weekly Scrap (View the Weekly scrap statistics of your scrapyard warehouse input of the week).
+3. View Overall Scrapyard Stock (You have access to the total count of your stock count, leveraging ease of access in monitor scrapyard warehouse capacity).
+4. Integrated Chat Subcommunication System (Leveraged for both Scrapyard Owners/Sellers and Affiliated Buyers)
+5. User Dashboard Interface for Chat Moderation using GetStreamIo, PayPal, and a Web Administration for our ASAN Integrated App (that handles user verifications, account reactivations, and audit logs).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Usage Manual
 
-## Laravel Sponsors
+### ASAN Integrated and Web Administration
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### CREDENTIALS USED IN THE APPLICATION:
 
-### Premium Partners
+```bash
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# Paypal Sandbox Account (To test subscription):
+// Email: aladiahfulminar@seoltech.com
+// Password: sonicglider1X
 
-## Contributing
+# Web Administration Account (To test web administration):
+// Username: fslagman
+// Password: password01230
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```
 
-## Code of Conduct
+#### Introduction:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Welcome to the WMS (Warehouse Management System) User Manual. This guide will
+help you navigate and utilize the key features of the WMS efficiently. There are three types
+of accounts within the WMS: Owner, Buyer, and Administrator. Each account type has
+specific functionalities designed to cater to different roles within the system.
 
-## Security Vulnerabilities
+1. **Owner Account** - As an Owner, you have access to the following features:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+    **Input Daily Scrap**
 
-## License
+        a. Login to your Owner account.
+        b. Navigate to the Daily Scrap Input section from the main dashboard.
+        c. Enter the Date, Type of Scrap, Quantity, and any additional notes.
+        d. Click Submit to save the entry.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+    **View Weekly Scrap**
+
+        a. Steps to View Weekly Scrap:
+        b. Login to your Owner account.
+        c. Navigate to the Weekly Scrap section from the main dashboard.
+        d. Select the desired Week from the dropdown menu.
+        e. Review the summarized data for the selected week.
+
+    **View Overall Scrapyard Stock**
+
+        a. Steps to View Overall Scrapyard Stock:
+        b. Login to your Owner account.
+        156
+        c. Navigate to the Overall Scrapyard Stock section from the main
+        dashboard.
+        d. View the total stock levels across all categories and scrapyards.
+
+
+    **View Weekly Scrap Statistics**
+
+        a. Login to your Owner account.
+        b. Navigate to the Weekly Scrap Statistics section from the main
+        dashboard.
+        c. Review charts and graphs to understand trends and patterns.
+
+2. **Buyer account** - As a Buyer, you have access to the following features:
+
+    **Perform Warehouse Selection**
+
+        a. Login to your Buyer account.
+        b. Navigate to the Warehouse Selection section from the main dashboard.
+        c. Browse the list of available warehouses.
+        d. Select a warehouse to view its details and make your choice.
+
+    **View Overall Stock**
+
+        a. Login to your Buyer account.
+        b. Navigate to the Overall Stock section from the main dashboard.
+        c. View the total available stock across all warehouses.
+
+    **View Categories of Each Scrapyard**
+
+        a. Login to your Buyer account.
+        b. Navigate to the Scrapyard Categories section from the main
+        dashboard.
+        157
+        c. Select a scrapyard to view its categories and available stock within
+        each category.
+
+3. **Administrator Account** - As an Administrator, you have access to the following
+features:
+
+    **User/Account Management**
+
+        a. Login to your Administrator account.
+        b. Navigate to the User Management section from the main dashboard.
+        c. View the list of current users.
+        d. Add new users by clicking Add User and filling in the necessary
+        details.
+        e. Edit existing user information by selecting a user and clicking Edit.
+        f. Deactivate or delete users as needed.
+
+## Testing our Application in Android Studio
+
+>**Note**: Make sure you have cloned our application in your desired folder in your system. Afterwards, perform the next steps:
+
+```bash
+# Select the project folder.
+cd asan
+
+# Install the necessary packages.
+npm install
+
+# Run the Metro Bundler
+npm run start
+```
+>**Note**: Make sure you have Android Studio and have it properly configured to proceed.
+
+# REACT NATIVE GETTING STARTED SECTION (For those who use newer versions of React Native):
+
+## Step 1: Start the Metro Server
+
+First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+
+To start Metro, run the following command from the _root_ of your React Native project:
+
+```bash
+# using npm
+npm start
+
+# OR using Yarn
+yarn start
+```
+
+## Step 2: Start your Application
+
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+
+### For Android
+
+```bash
+# using npm
+npm run android
+
+# OR using Yarn
+yarn android
+```
+
+### For iOS
+
+```bash
+# using npm
+npm run ios
+
+# OR using Yarn
+yarn ios
+```
+
+If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+
+This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+
+## Step 3: Modifying your App
+
+Now that you have successfully run the app, let's modify it.
+
+1. Open `App.tsx` in your text editor of choice and edit some lines.
+2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+
+   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
